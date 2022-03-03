@@ -33,6 +33,10 @@ let
     , extraPatches ? [ ]
     , packageOverrides ? (final: prev: { })
     , phpAttrsOverrides ? (attrs: { })
+    , src ? fetchurl {
+        url = "https://www.php.net/distributions/php-${version}.tar.bz2";
+        inherit sha256;
+      }
 
       # Sapi flags
     , cgiSupport ? true
@@ -190,7 +194,7 @@ let
         attrs = {
           pname = "php";
 
-          inherit version;
+          inherit version src;
 
           enableParallelBuilding = true;
 
@@ -295,11 +299,6 @@ let
                $out/share/man/man1/php-config.1.gz \
                $dev/share/man/man1/
           '';
-
-          src = fetchurl {
-            url = "https://www.php.net/distributions/php-${version}.tar.bz2";
-            inherit sha256;
-          };
 
           patches = [ ./fix-paths-php7.patch ] ++ extraPatches;
 
