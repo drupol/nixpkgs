@@ -49,10 +49,15 @@
 }:
 
 lib.makeScope pkgs.newScope (self: with self; {
-  buildPecl = import ../build-support/build-pecl.nix {
+  buildPecl = import ../build-support/php/build-pecl.nix {
     php = php.unwrapped;
     inherit lib;
     inherit (pkgs) stdenv autoreconfHook fetchurl re2c nix-update-script;
+  };
+
+  buildPhpProject = import ../build-support/php/build-php.nix {
+    inherit lib php;
+    inherit (pkgs) stdenvNoCC writeTextDir git unzip xz makeBinaryWrapper jq;
   };
 
   # Wrap mkDerivation to prepend pname with "php-" to make names consistent
