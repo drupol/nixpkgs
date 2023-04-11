@@ -196,7 +196,7 @@ lib.makeScope pkgs.newScope (self: with self; {
 
     php-parallel-lint = callPackage ../development/php-packages/php-parallel-lint { };
 
-    phpcbf = callPackage ../development/php-packages/phpcbf { };
+    phpcbf = throw "phpcbf is included in phpcs, use phpcs instead."; # Added 2022-01-19
 
     phpcs = callPackage ../development/php-packages/phpcs { };
 
