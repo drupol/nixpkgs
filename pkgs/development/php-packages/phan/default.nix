@@ -1,33 +1,23 @@
-{ lib
-, php
-, mkDerivation
-, fetchurl
-, makeWrapper
-}:
-let
-  php' = php.withExtensions ({ enabled, all }: enabled ++ [ all.ast ]);
-in
-mkDerivation rec {
-  pname = "phan";
-  version = "5.4.1";
+{ lib, fetchFromGitHub, php }@inputs:
 
-  src = fetchurl {
-    url = "https://github.com/phan/phan/releases/download/${version}/phan.phar";
-    hash = "sha256-DJr1BWAfNI3hYvmBui5Dp+n7ec+f+gkOso21KEd6m8I=";
+php.buildPhpProject (finalAttrs: {
+  pname = "phan";
+  version = "5.4.2";
+
+  src = fetchFromGitHub {
+    owner = "phan";
+    repo = "phan";
+    rev = finalAttrs.version;
+    hash = "sha256-AoY0+2v9wXQQzrNLo3xnuq8djZg15epiV748/pUtBqM=";
   };
 
-  dontUnpack = true;
+  php = (inputs.php.buildEnv {
+    extensions = ({ enabled, all }: enabled ++ (with all; [
+      ast
+    ]));
+  });
 
-  nativeBuildInputs = [ makeWrapper ];
-
-  installPhase = ''
-    runHook preInstall
-    mkdir -p $out/bin
-    install -D $src $out/libexec/phan/phan.phar
-    makeWrapper ${php'}/bin/php $out/bin/phan \
-      --add-flags "$out/libexec/phan/phan.phar"
-    runHook postInstall
-  '';
+  vendorHash = "sha256-MftBLjr2YxdIc5G+LuPOVCqBzW4OUzCqo2HT+EH2PJw=";
 
   meta = with lib; {
     description = "Static analyzer for PHP";
@@ -39,4 +29,4 @@ mkDerivation rec {
     homepage = "https://github.com/phan/phan";
     maintainers = [ maintainers.apeschar ];
   };
-}
+})
