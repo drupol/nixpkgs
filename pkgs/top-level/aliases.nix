@@ -395,6 +395,10 @@ mapAliases ({
   double_conversion = throw "'double_conversion' has been renamed to/replaced by 'double-conversion'"; # Converted to throw 2022-02-22
   draftsight = throw "draftsight has been removed, no longer available as freeware"; # Added 2020-08-14
   dragon-drop = throw "'dragon-drop' has been removed in favor of 'xdragon'"; # Added 2022-04-10;
+  drush = throw (
+    "drush has been removed because it's not maintained anymore as a standalone tool. " +
+    "Use `drush-launcher` instead. Also see https://github.com/drush-ops/drush/pull/5537"
+  );
   dtv-scan-tables_linuxtv = dtv-scan-tables;  # Added 2023-03-03
   dtv-scan-tables_tvheadend = dtv-scan-tables;  # Added 2023-03-03
   dust = throw "dust has been removed: abandoned by upstream"; # Added 2022-04-21
