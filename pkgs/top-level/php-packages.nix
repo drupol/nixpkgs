@@ -55,6 +55,16 @@ lib.makeScope pkgs.newScope (self: with self; {
     inherit (pkgs) stdenv autoreconfHook fetchurl re2c nix-update-script;
   };
 
+  composerInstallHook = import ../build-support/php/hooks {
+    inherit lib;
+    inherit (pkgs) stdenvNoCC writeTextDir git unzip xz makeBinaryWrapper jq;
+  };
+
+  buildComposerCacheDir = import ../build-support/php/build-composer.nix {
+    inherit lib php;
+    inherit (pkgs) stdenvNoCC writeTextDir git unzip xz;
+  };
+
   buildPhpProject = import ../build-support/php/build-php.nix {
     inherit lib php;
     inherit (pkgs) stdenvNoCC writeTextDir git unzip xz makeBinaryWrapper jq;

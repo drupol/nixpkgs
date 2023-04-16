@@ -13,8 +13,11 @@ php.buildPhpProject (finalAttrs: {
 
   # TODO: Open a PR against https://github.com/phpro/grumphp
   # Missing `composer.lock` from the repository.
-  composerLock = ./composer.lock;
-  vendorHash = "sha256-DsKYccvg4ue2K9Z3DTQzm6gDs/qqbfX2FhITSIHniAk=";
+  composerDeps = php.buildComposerCacheDir {
+    inherit (finalAttrs) src;
+    name = "${finalAttrs.pname}-${finalAttrs.version}";
+    hash = "sha256-DsKYccvg4ue2K9Z3DTQzm6gDs/qqbfX2FhITSIHniAk=";
+  };
 
   meta = with lib; {
     changelog = "https://github.com/phpro/grumphp/releases/tag/v${finalAttrs.version}";
