@@ -7,12 +7,14 @@ let
     composerLock = finalAttrs.composerLock or null;
     phpDrv = finalAttrs.php or php;
     composer = finalAttrs.composer or phpDrv.packages.composer;
-    noDev = finalAttrs.noDev or true;
-    noScripts = finalAttrs.noScripts or true;
-    noPlugins = finalAttrs.noPlugins or true;
+    noDevArg = finalAttrs.noDev or "--no-dev";
+    noScriptsArg = finalAttrs.noScripts or "--no-scripts";
+    noPluginsArg = finalAttrs.noPlugins or "--no-plugins";
+
+    prefix = builtins.replaceStrings ["-"] [""] finalAttrs.pname;
 
     # See https://github.com/composer/composer/pull/9212
-    prefix = "${builtins.replaceStrings ["-"] [""] finalAttrs.pname}";
+    apcuAutoloaderPrefixArg = "--apcu-autoloader-prefix=${prefix}";
 
     # See https://getcomposer.org/doc/03-cli.md#composer-home-config-json
     composerHome = let
@@ -21,6 +23,7 @@ let
       writeTextDir "/config.json" (builtins.toJSON content);
 
     vendor = stdenvNoCC.mkDerivation (finalVendorAttrs: {
+      inherit noDevArg noScriptsArg noPluginsArg apcuAutoloaderPrefixArg;
       inherit (finalAttrs) version src;
       pname = "${finalAttrs.pname}-vendor";
 
@@ -29,24 +32,13 @@ let
 
       nativeBuildInputs = [
         composer
-        git
-        unzip
-        xz
+        php.composerHooks.composerSetupHook
       ];
 
-      strictDeps = true;
+      composerLock = finalAttrs.composerLock or null;
 
       configurePhase = ''
         runHook preConfigure
-
-        ${lib.optionalString (composerLock != null) "cp ${composerLock} composer.lock"}
-
-        if [[ ! -f "composer.lock" ]]; then
-          echo "No composer.lock file found"
-          exit 1
-        fi
-
-        mkdir -p cache
 
         runHook postConfigure
       '';
@@ -54,52 +46,39 @@ let
       buildPhase = ''
         runHook preBuild
 
-        COMPOSER_CACHE_DIR=cache \
-        COMPOSER_HOME=${composerHome} \
-        composer install \
-          ${lib.optionalString noDev "--no-dev"} \
-          ${lib.optionalString noScripts "--no-scripts"} \
-          ${lib.optionalString noPlugins "--no-plugins"} \
-          --download-only
-
         runHook postBuild
       '';
 
       installPhase = ''
         runHook preInstall
 
-        mkdir -p $out
-        cp composer.lock $out/
-        cp -ar cache/ $out/
-
         runHook postInstall
       '';
+
+      strictDeps = true;
 
       outputHashMode = "recursive";
       outputHashAlgo = if (finalAttrs ? vendorHash && finalAttrs.vendorHash != "") then null else "sha256";
       outputHash = finalAttrs.vendorHash or "";
     });
   in {
+    inherit noDevArg noScriptsArg noPluginsArg apcuAutoloaderPrefixArg;
+
+    prefix = "${builtins.replaceStrings ["-"] [""] finalAttrs.pname}";
+
     nativeBuildInputs = [
       composer
-      git
-      jq
-      makeBinaryWrapper
-      unzip
-      xz
+      php.composerHooks.composerInstallHook
     ];
+
+    composerVendor = vendor;
 
     buildInputs = [
       phpDrv
     ];
 
-    strictDeps = true;
-
     configurePhase = ''
       runHook preConfigure
-
-      cp -fr ${vendor}/* .
-      chmod +w cache -R
 
       runHook postConfigure
     '';
@@ -107,33 +86,16 @@ let
     buildPhase = ''
       runHook preBuild
 
-      COMPOSER_DISABLE_NETWORK=1 \
-      COMPOSER_CACHE_DIR=cache \
-      composer install \
-        --apcu-autoloader-prefix=${prefix} \
-        ${lib.optionalString noDev "--no-dev"} \
-        ${lib.optionalString noScripts "--no-scripts"} \
-        ${lib.optionalString noPlugins "--no-plugins"} \
-        --no-interaction \
-        --optimize-autoloader
-
       runHook postBuild
     '';
 
     installPhase = ''
       runHook preInstall
 
-      mkdir -p $out/share/php/${finalAttrs.pname}
-      rm -rf cache
-      cp -r . $out/share/php/${finalAttrs.pname}/
-
-      jq -r -c 'try .bin[]' composer.json | while read bin; do
-        mkdir -p $out/bin
-        ln -s $out/share/php/${finalAttrs.pname}/$bin $out/bin/$(basename $bin)
-      done
-
       runHook postInstall
     '';
+
+    strictDeps = true;
   };
 in
   args: (stdenvNoCC.mkDerivation args).overrideAttrs buildPhpProjectOverride
