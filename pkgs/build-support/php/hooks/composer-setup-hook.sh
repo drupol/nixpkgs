@@ -32,8 +32,6 @@ composerSetupConfigureHook() {
 composerSetupBuildHook() {
     echo "Executing composerSetupBuildHook"
 
-    set -x
-
     argstr=("--no-interaction" "--download-only")
 
     if [[ ! -n ${installComposerDevDependencies-} ]]; then
