@@ -1,15 +1,11 @@
-{ stdenvNoCC, lib, writeTextDir, php, unzip, xz, git, makeBinaryWrapper, jq }:
+{ stdenvNoCC, lib, writeTextDir, php }:
 
 let
   buildPhpProjectOverride = finalAttrs: previousAttrs:
 
   let
-    composerLock = finalAttrs.composerLock or null;
     phpDrv = finalAttrs.php or php;
     composer = finalAttrs.composer or phpDrv.packages.composer;
-    noDevArg = finalAttrs.noDev or "--no-dev";
-    noScriptsArg = finalAttrs.noScripts or "--no-scripts";
-    noPluginsArg = finalAttrs.noPlugins or "--no-plugins";
 
     prefix = builtins.replaceStrings ["-"] [""] finalAttrs.pname;
 
@@ -23,7 +19,7 @@ let
       writeTextDir "/config.json" (builtins.toJSON content);
 
     vendor = stdenvNoCC.mkDerivation (finalVendorAttrs: {
-      inherit noDevArg noScriptsArg noPluginsArg apcuAutoloaderPrefixArg;
+      inherit apcuAutoloaderPrefixArg;
       inherit (finalAttrs) version src;
       pname = "${finalAttrs.pname}-vendor";
 
@@ -37,6 +33,7 @@ let
 
       composerLock = finalAttrs.composerLock or null;
 
+      # Should we keep these empty phases?
       configurePhase = ''
         runHook preConfigure
 
@@ -62,7 +59,7 @@ let
       outputHash = finalAttrs.vendorHash or "";
     });
   in {
-    inherit noDevArg noScriptsArg noPluginsArg apcuAutoloaderPrefixArg;
+    inherit apcuAutoloaderPrefixArg;
 
     prefix = "${builtins.replaceStrings ["-"] [""] finalAttrs.pname}";
 
@@ -77,6 +74,7 @@ let
       phpDrv
     ];
 
+      # Should we keep these empty phases?
     configurePhase = ''
       runHook preConfigure
 
