@@ -57,6 +57,8 @@ lib.makeScope pkgs.newScope (self: with self; {
 
   composerHooks = callPackage ../build-support/php/hooks { };
 
+  buildComposerDeps = callPackage ../build-support/php/build-composer-deps.nix { };
+
   # Wrap mkDerivation to prepend pname with "php-" to make names consistent
   # with how buildPecl does it and make the file easier to overview.
   mkDerivation = origArgs:

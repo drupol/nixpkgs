@@ -32,14 +32,25 @@ composerSetupConfigureHook() {
 composerSetupBuildHook() {
     echo "Executing composerSetupBuildHook"
 
-    argstr="--no-interaction --download-only"
-    argstr+=" ${noDevArg}"
-    argstr+=" ${noScriptsArg}"
-    argstr+=" ${noPluginsArg}"
+    set -x
+
+    argstr=("--no-interaction" "--download-only")
+
+    if [[ ! -n ${installComposerDevDependencies-} ]]; then
+        argstr+=("--no-dev")
+    fi
+
+    if [[ ! -n ${installComposerScriptsDependencies-} ]]; then
+        argstr+=("--no-scripts")
+    fi
+
+    if [[ ! -n ${installComposerPluginsDependencies-} ]]; then
+        argstr+=("--no-plugins")
+    fi
 
     COMPOSER_CACHE_DIR=".composer" \
     COMPOSER_HOME=${composerHome} \
-    composer install ${argstr}
+    composer install ${argstr[@]}
 
     echo "Finished composerSetupBuildHook"
 }

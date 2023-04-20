@@ -27,15 +27,25 @@ composerInstallConfigureHook() {
 composerInstallBuildHook() {
     echo "Executing composerInstallBuildHook"
 
-    argstr="--no-interaction --optimize-autoloader"
-    argstr+=" ${noDevArg}"
-    argstr+=" ${noScriptsArg}"
-    argstr+=" ${noPluginsArg}"
-    argstr+=" ${apcuAutoloaderPrefixArg}"
+    argstr=("--no-interaction" "--optimize-autoloader")
+
+    if [[ ! -n ${installComposerDevDependencies-} ]]; then
+        argstr+=("--no-dev")
+    fi
+
+    if [[ ! -n ${installComposerScriptsDependencies-} ]]; then
+        argstr+=("--no-scripts")
+    fi
+
+    if [[ ! -n ${installComposerPluginsDependencies-} ]]; then
+        argstr+=("--no-plugins")
+    fi
+
+    argstr+=("${apcuAutoloaderPrefixArg}")
 
     COMPOSER_DISABLE_NETWORK=1 \
     COMPOSER_CACHE_DIR=.composer \
-    composer install ${argstr}
+    composer install ${argstr[@]}
 
     echo "Finished composerInstallBuildHook"
 }
