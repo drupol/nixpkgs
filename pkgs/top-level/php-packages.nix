@@ -332,7 +332,16 @@ lib.makeScope pkgs.newScope (self: with self; {
         }
         { name = "exif"; doCheck = false; }
         { name = "ffi"; buildInputs = [ libffi ]; }
-        { name = "fileinfo"; buildInputs = [ pcre2 ]; }
+        {
+          name = "fileinfo";
+          buildInputs = [ pcre2 ];
+          patches = lib.optionals (lib.versionAtLeast php.version "8.3") [
+            # Fix the extension unable to be loaded due to missing `get_module` function.
+            # `ZEND_GET_MODULE` macro that creates it is conditional on `COMPILE_DL_FILEINFO` being defined.
+            # https://github.com/php/php-src/issues/11408#issuecomment-1602106200
+            ../development/interpreters/php/fix-fileinfo-ext-php83.patch
+          ];
+        }
         { name = "filter"; buildInputs = [ pcre2 ]; }
         { name = "ftp"; buildInputs = [ openssl ]; }
         {
@@ -556,8 +565,8 @@ lib.makeScope pkgs.newScope (self: with self; {
         { name = "tidy"; configureFlags = [ "--with-tidy=${html-tidy}" ]; doCheck = false; }
         {
           name = "tokenizer";
-          patches = lib.optional (lib.versionAtLeast php.version "8.1")
-            ../development/interpreters/php/fix-tokenizer-php81.patch;
+          patches = lib.optionals (lib.versionAtLeast php.version "8.1")
+            [ ../development/interpreters/php/fix-tokenizer-php81.patch ];
         }
         {
           name = "xml";
