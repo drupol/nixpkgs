@@ -4950,6 +4950,8 @@ self: super: with self; {
 
   funcy = callPackage ../development/python-modules/funcy { };
 
+  funk = callPackage ../development/python-modules/funk { };
+
   funsor = callPackage ../development/python-modules/funsor { };
 
   furl = callPackage ../development/python-modules/furl { };
