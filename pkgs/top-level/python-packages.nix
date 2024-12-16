@@ -7793,6 +7793,8 @@ self: super: with self; {
 
   malduck = callPackage ../development/python-modules/malduck { };
 
+  mammoth = callPackage ../development/python-modules/mammoth { };
+
   mamba-ssm = callPackage ../development/python-modules/mamba-ssm { };
 
   managesieve = callPackage ../development/python-modules/managesieve { };
