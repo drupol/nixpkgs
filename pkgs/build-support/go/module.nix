@@ -17,13 +17,9 @@ lib.extendMkDerivation {
   extendDrvArgs =
     finalAttrs:
     {
-      name ? "${args'.pname}-${args'.version}",
-      # The source used to build the derivation.
-      src,
       # Native build inputs used for the derivation.
       nativeBuildInputs ? [ ],
       passthru ? { },
-      patches ? [ ],
 
       # A function to override the `goModules` derivation.
       overrideModAttrs ? (finalAttrs: previousAttrs: { }),
