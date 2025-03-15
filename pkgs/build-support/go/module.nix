@@ -1,7 +1,7 @@
 {
   go,
   cacert,
-  git,
+  gitMinimal,
   lib,
   stdenv,
 }:
@@ -84,7 +84,7 @@ lib.extendMkDerivation {
 
             nativeBuildInputs = (finalAttrs.nativeBuildInputs or [ ]) ++ [
               go
-              git
+              gitMinimal
               cacert
             ];
 
