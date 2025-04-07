@@ -44,7 +44,7 @@ stdenv.mkDerivation (finalAttrs: {
   passthru.tests = {
     testVersion = testers.testVersion {
       package = finalAttrs.finalPackage;
-      version = "${finalAttrs.version}";
+      version = finalAttrs.version;
     };
   };
 

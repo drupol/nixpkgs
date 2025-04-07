@@ -51,7 +51,7 @@ stdenv.mkDerivation (finalAttrs: {
       )
     );
     VENCORD_REMOTE = "${finalAttrs.src.owner}/${finalAttrs.src.repo}";
-    VENCORD_HASH = "${finalAttrs.version}";
+    VENCORD_HASH = finalAttrs.version;
   };
 
   buildPhase = ''

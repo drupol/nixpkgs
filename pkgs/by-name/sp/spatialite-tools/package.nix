@@ -55,7 +55,7 @@ stdenv.mkDerivation rec {
   passthru.tests.version = testers.testVersion {
     package = spatialite-tools;
     command = "! spatialite_tool --version";
-    version = "${libspatialite.version}";
+    version = libspatialite.version;
   };
 
   meta = {

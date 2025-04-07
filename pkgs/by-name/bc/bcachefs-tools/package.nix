@@ -113,7 +113,7 @@ stdenv.mkDerivation (finalAttrs: {
       version = testers.testVersion {
         package = finalAttrs.finalPackage;
         command = "${finalAttrs.meta.mainProgram} version";
-        version = "${finalAttrs.version}";
+        version = finalAttrs.version;
       };
       smoke-test = nixosTests.bcachefs;
       inherit (nixosTests.installer) bcachefsSimple bcachefsEncrypted bcachefsMulti;

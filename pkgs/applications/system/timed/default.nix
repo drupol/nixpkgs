@@ -82,7 +82,7 @@ stdenv.mkDerivation (finalAttrs: {
   '';
 
   env = {
-    TIMED_VERSION = "${finalAttrs.version}";
+    TIMED_VERSION = finalAttrs.version;
 
     # Other subprojects expect library to already be present
     NIX_CFLAGS_COMPILE = "-isystem ${placeholder "dev"}/include";

@@ -72,7 +72,7 @@ stdenv.mkDerivation (finalAttrs: {
     make qmake_all
   '';
 
-  env.IODATA_VERSION = "${finalAttrs.version}";
+  env.IODATA_VERSION = finalAttrs.version;
 
   passthru.updateScript = gitUpdater { };
 
