@@ -1,0 +1,10 @@
+{
+  "presets": {
+    "nixfmt": {
+      "language": "nix",
+      "command": "nixfmt < {file}",
+      "input_mode": "file",
+      "mode": "replace"
+    }
+  }
+}
