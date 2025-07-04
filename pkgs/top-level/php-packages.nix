@@ -192,9 +192,11 @@ lib.makeScope pkgs.newScope (
             runHook preInstall
 
             mkdir -p $out/lib/php/extensions
-            cp modules/${extName}.so $out/lib/php/extensions/${extName}.so
+            if [ -f "modules/${extName}.so" ]; then
+              cp modules/${extName}.so $out/lib/php/extensions/${extName}.so
+            fi
             mkdir -p $dev/include
-            ${rsync}/bin/rsync -r --filter="+ */" \
+            ${lib.getExe rsync} -r --filter="+ */" \
                                   --filter="+ *.h" \
                                   --filter="- *" \
                                   --prune-empty-dirs \
@@ -417,6 +419,7 @@ lib.makeScope pkgs.newScope (
           # want to build.
           #
           # These will be passed as arguments to mkExtension above.
+
           extensionData = [
             { name = "bcmath"; }
             {
@@ -443,19 +446,104 @@ lib.makeScope pkgs.newScope (
             { name = "dba"; }
             {
               name = "dom";
-              buildInputs = [ libxml2 ];
+              buildInputs =
+                let
+                  lexbor = mkExtension {
+                    name = "lexbor";
+                    configureFlags = [ ];
+                    doCheck = false;
+                  };
+                in
+                [
+                  libxml2
+                ]
+                ++ lib.optionals (lib.versionAtLeast php.version "8.5") [
+                  lexbor
+                ];
               configureFlags = [
                 "--enable-dom"
               ];
-              patches = lib.optionals (lib.versionOlder php.version "8.3") [
-                # Fix gh10234 test with libxml 2.15.0
-                (fetchpatch {
-                  url = "https://github.com/php/php-src/commit/d6e70e705323a50b616ffee9402245ab97de3e4e.patch";
-                  hash = "sha256-Axu09l3uQ83qe30aDsR+Bt29cJiF4mLknwDyQf94vic=";
-                  includes = [
-                    "ext/dom/tests/gh10234.phpt"
-                  ];
-                })
+              env.NIX_CFLAGS_COMPILE = toString [
+                "-I../.."
+              ];
+            }
+            {
+              name = "enchant";
+              buildInputs = [ enchant2 ];
+              configureFlags = [ "--with-enchant" ];
+              doCheck = false;
+            }
+            {
+              name = "exif";
+              doCheck = false;
+            }
+            {
+              name = "ffi";
+              buildInputs = [ libffi ];
+            }
+            {
+              name = "fileinfo";
+              buildInputs = [ pcre2 ];
+            }
+            {
+              name = "filter";
+              buildInputs = [ pcre2 ];
+            }
+            {
+              name = "ftp";
+              buildInputs = [ openssl ];
+            }
+            {
+              name = "gd";
+              buildInputs = [
+                zlib
+                gd
+              ];
+              configureFlags = [
+                "--enable-gd"
+                "--with-external-gd=${gd.dev}"
+                "--enable-gd-jis-conv"
+              ];
+              doCheck = false;
+            }
+            {
+              name = "gettext";
+              buildInputs = [ gettext ];
+              postPhpize = ''substituteInPlace configure --replace-fail 'as_fn_error $? "Cannot locate header file libintl.h" "$LINENO" 5' ':' '';
+              configureFlags = [ "--with-gettext=${gettext}" ];
+            }
+            {
+              name = "gmp";
+              buildInputs = [ gmp ];
+              configureFlags = [ "--with-gmp=${gmp.dev}" ];
+            }
+            {
+              name = "iconv";
+              buildInputs = [ libiconv ];
+              configureFlags = [ "--with-iconv" ];
+              # Some other extensions support separate libdirs, but iconv does not. This causes problems with detecting
+              # Darwin’s libiconv because it has separate outputs. Adding `-liconv` works around the issue.
+              env = lib.optionalAttrs stdenv.hostPlatform.isDarwin { NIX_LDFLAGS = "-liconv"; };
+              doCheck = stdenv.hostPlatform.isLinux;
+            }
+            {
+              name = "intl";
+              buildInputs = [ icu73 ];
+            }
+            {
+              name = "ldap";
+              buildInputs = [
+                openldap
+                cyrus_sasl
+              ];
+              configureFlags = [
+                "--with-ldap"
+                "LDAP_DIR=${openldap.dev}"
+                "LDAP_INCDIR=${openldap.dev}/include"
+                "LDAP_LIBDIR=${openldap.out}/lib"
+              ]
+              ++ lib.optionals stdenv.hostPlatform.isLinux [
+                "--with-ldap-sasl=${cyrus_sasl.dev}"
               ];
             }
             {
@@ -756,6 +844,7 @@ lib.makeScope pkgs.newScope (
               name = "tokenizer";
               patches = [ ../development/interpreters/php/fix-tokenizer-php81.patch ];
             }
+            { name = "uri"; }
             {
               name = "xml";
               buildInputs = [ libxml2 ];
