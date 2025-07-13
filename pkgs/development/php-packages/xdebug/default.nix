@@ -2,6 +2,7 @@
   buildPecl,
   lib,
   fetchFromGitHub,
+  php,
 }:
 
 let
@@ -15,8 +16,8 @@ buildPecl {
   src = fetchFromGitHub {
     owner = "xdebug";
     repo = "xdebug";
-    rev = version;
-    hash = "sha256-TxwEyXyUGq3rUWyLExyDopJZ29eAoh9QG1TC2+hImmc=";
+    tag = version;
+    hash = "sha256-tJNN1GNEH3z/bsmzNMPoF6TAgOQ4EiM4QheqmhCQzM4=";
   };
 
   doCheck = true;
@@ -29,5 +30,6 @@ buildPecl {
     homepage = "https://xdebug.org/";
     license = lib.licenses.php301;
     teams = [ lib.teams.php ];
+    broken = lib.versionAtLeast php.version "8.5";
   };
 }
