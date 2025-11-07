@@ -38,9 +38,8 @@ php.buildComposerProject2 (finalAttrs: {
     '';
   };
 
-  vendorHash = "sha256-x62+uhrwlbjRGitMlvxSZpN1Pb1VrWGVJ+WxCvO2w9A=";
-
   composerNoPlugins = false;
+  vendorHash = "sha256-3/LT5HjCpnO3Sz+NshrSMTujtYka0FMyT56qmiEi2t4=";
 
   postInstall = ''
     # Make available the console utility, as Kimai doesn't list this in
