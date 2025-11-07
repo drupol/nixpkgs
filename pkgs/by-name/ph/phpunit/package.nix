@@ -3,8 +3,6 @@
   fetchFromGitHub,
   nix-update-script,
   php,
-  phpunit,
-  testers,
   versionCheckHook,
 }:
 
@@ -19,11 +17,10 @@ php.buildComposerProject2 (finalAttrs: {
     hash = "sha256-fbHHoqCHL3KizoVRWm+Dj+nfb5CLF8SGfMc1D2OjbHY=";
   };
 
-  vendorHash = "sha256-CuH86qqKVIQSRgTslKWBt8c9G06Ti6hbFw3bQ0ouL3k=";
+  vendorHash = "sha256-p8UQVOfcx9iOX2KuSPazqZe/0kZiFBEcbL5f9unqEFg=";
 
   passthru = {
     updateScript = nix-update-script { };
-    tests.version = testers.testVersion { package = phpunit; };
   };
 
   doInstallCheck = true;
