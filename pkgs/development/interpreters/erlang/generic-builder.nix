@@ -37,7 +37,7 @@
   perl,
   runtimeShell,
   stdenv,
-  systemd,
+  systemdLibs,
   unixODBC,
   wrapGAppsHook3,
   wxGTK32,
@@ -67,7 +67,7 @@ let
 
   enableSystemd =
     if (systemdSupport == null) then
-      lib.meta.availableOn stdenv.hostPlatform systemd
+      lib.meta.availableOn stdenv.hostPlatform systemdLibs
     else
       systemdSupport;
 
@@ -109,7 +109,7 @@ stdenv.mkDerivation {
   ++ optionals wxSupport wxPackages2
   ++ optionals odbcSupport [ unixODBC ]
   ++ optionals javacSupport [ openjdk11 ]
-  ++ optionals enableSystemd [ systemd ];
+  ++ optionals enableSystemd [ systemdLibs ];
 
   # disksup requires a shell
   postPatch = ''
