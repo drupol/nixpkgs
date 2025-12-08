@@ -28,17 +28,15 @@ stdenvNoCC.mkDerivation (finalAttrs: {
     nodejs
     nodejs.python
     buildPackages.npmHooks.npmConfigHook
+    php84.packages.composer
     php84.composerHooks2.composerInstallHook
   ];
 
   composerVendor = php84.mkComposerVendor {
     inherit (finalAttrs) pname src version;
-    composerNoDev = true;
-    composerNoPlugins = true;
-    composerNoScripts = true;
     composerStrictValidation = true;
     strictDeps = true;
-    vendorHash = "sha256-XNyDlB6c0aBbQMRSMtayshhxg+gCkO1cwfsGI4rEKt4=";
+    vendorHash = "sha256-VvoWlQPiuQ9wWDsVkCwnCvIZUhXCC0rra+eGFiuuAtU=";
   };
 
   npmDeps = fetchNpmDeps {
