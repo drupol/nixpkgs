@@ -5,6 +5,8 @@
   dpkg,
   makeBinaryWrapper,
   glib-networking,
+  wrapGAppsHook4,
+  glib,
 }:
 
 let
@@ -24,6 +26,7 @@ stdenv.mkDerivation (finalAttrs: {
   nativeBuildInputs = [
     dpkg
     makeBinaryWrapper
+    wrapGAppsHook4
   ];
 
   installPhase = ''
@@ -38,6 +41,12 @@ stdenv.mkDerivation (finalAttrs: {
     runHook postInstall
   '';
 
+  preFixup = ''
+    schemadir=${glib.makeSchemaPath "$out" "$name"}
+    mv $out/share/workspacesclient/schemas/* $schemadir
+    glib-compile-schemas $schemadir
+  '';
+
   postFixup = ''
     # provide network support
     wrapProgram "$out/bin/workspacesclient" \
@@ -45,8 +54,8 @@ stdenv.mkDerivation (finalAttrs: {
 
     # dcvclient does not setup the environment correctly.
     # Instead wrap the binary directly the correct environment paths
-    # mv $out/${dcv-path}/dcvclientbin $out/${dcv-path}/dcvclient
-    wrapProgram $out/${dcv-path}/dcvviewer \
+    mv $out/${dcv-path}/dcvviewer $out/${dcv-path}/workspacesclientdcv
+    wrapProgram $out/${dcv-path}/workspacesclientdcv \
       --suffix LD_LIBRARY_PATH : $out/${dcv-path} \
       --suffix GIO_EXTRA_MODULES : ${dcv-path}/gio/modules \
       --set DCV_SASL_PLUGIN_DIR $out/${dcv-path}/sasl2 \
