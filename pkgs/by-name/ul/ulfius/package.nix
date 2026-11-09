@@ -41,7 +41,7 @@ stdenv.mkDerivation (finalAttrs: {
   ];
 
   # Fix build w/ glibc-2.44
-  env.NIX_CFLAGS_COMPILE = "-Wno-error=discarded-qualifiers";
+  env.NIX_CFLAGS_COMPILE = lib.optionalString stdenv.hostPlatform.isLinux "-Wno-error=discarded-qualifiers";
 
   propagatedBuildInputs = [
     libmicrohttpd
